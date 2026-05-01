@@ -38,7 +38,7 @@ A: Path can not contain any non-ASCII characters. Go and check your game path an
 
 Q: DLL Not found. 
 
-A: Ensure that ALL the DLLs exists in your launcher directory. If the problem persists, check your .NET runtime installation.
+A: Ensure that ALL the DLLs exists n your launcher directory. If the problem persists, check your .NET runtime installation.
 
 Q: Game cannot be downloaded.
 
@@ -51,3 +51,6 @@ A: Same as 'The launcher can not be launched.'
 Q: Game is not launching
 
 A: Check your directory permission, and check whether the game did really exist.
+
+
+* I have added some comments inside the source since it may be too complicated for noobs to understand the code.
