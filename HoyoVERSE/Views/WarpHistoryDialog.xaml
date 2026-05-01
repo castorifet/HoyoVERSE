@@ -1,0 +1,36 @@
+<ui:ContentDialog x:Class="HoyoVERSE.Views.WarpHistoryDialog"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:ui="http://schemas.modernwpf.com/2019"
+                  Title="Warp / Wish History"
+                  CloseButtonText="Close"
+                  MaxWidth="820"
+                  MinWidth="640">
+    <Grid Margin="0,4,0,0" MinHeight="440">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" x:Name="HeaderText"
+                   Foreground="White" FontSize="13" Margin="0,0,0,8" TextWrapping="Wrap" />
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+            <Button x:Name="FetchBtn" Content="Fetch from cache" Click="Fetch_Click"
+                    Style="{DynamicResource AccentButtonStyle}" />
+            <Button x:Name="CopyUrlBtn" Content="Copy auth URL" Click="CopyUrl_Click"
+                    Margin="8,0,0,0" IsEnabled="False" />
+            <ProgressBar x:Name="ProgressBar" IsIndeterminate="True" Width="160" Height="6"
+                         Margin="12,0,0,0" VerticalAlignment="Center" Visibility="Collapsed" />
+            <TextBlock x:Name="StatusText" Foreground="#A0FFFFFF" FontSize="11"
+                       VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="NoWrap" />
+        </StackPanel>
+
+        <TabControl Grid.Row="2" x:Name="BannerTabs" />
+
+        <TextBlock Grid.Row="3" Margin="0,8,0,0" Foreground="#A0FFFFFF" FontSize="11" TextWrapping="Wrap"
+                   Text="Reads the gacha-history URL from the in-game web cache (data_2). If no URL is found, open Wish/Warp Details inside the game once, then retry." />
+    </Grid>
+</ui:ContentDialog>

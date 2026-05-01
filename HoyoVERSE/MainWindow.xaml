@@ -1,0 +1,292 @@
+<Window x:Class="HoyoVERSE.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        xmlns:m="clr-namespace:HoyoVERSE.Models"
+        xmlns:c="clr-namespace:HoyoVERSE.Converters"
+        xmlns:s="clr-namespace:HoyoVERSE.Services"
+        Title="HoyoVERSE"
+        Width="1280" Height="760"
+        MinWidth="1024" MinHeight="640"
+        ui:WindowHelper.UseModernWindowStyle="True"
+        ui:TitleBar.ExtendViewIntoTitleBar="True"
+        ui:TitleBar.Background="Transparent"
+        Background="#FF101014">
+    <Window.Resources>
+        <c:NullToVisConverter x:Key="NullToVis" />
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Window.Resources>
+
+    <Grid>
+        <!-- Layered background -->
+        <Image Source="{Binding SelectedGame.BackgroundUrl, IsAsync=True}"
+               Stretch="UniformToFill"
+               RenderOptions.BitmapScalingMode="HighQuality" />
+        <Rectangle>
+            <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#A0000000" Offset="0.0" />
+                    <GradientStop Color="#10000000" Offset="0.35" />
+                    <GradientStop Color="#80000000" Offset="0.85" />
+                    <GradientStop Color="#FF000000" Offset="1.0" />
+                </LinearGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+
+        <!-- Windows-Security-style left navigation pane (ModernWpf NavigationView ≈ WinUI 2.4).
+             MenuItemsSource binds directly to Games so NavigationView updates incrementally
+             instead of us rebuilding the whole list on each Games.Add (which thrashed its
+             internal state during InitializeAsync). The per-game BitmapIcon is set via the
+             container's Loaded event. -->
+        <ui:NavigationView x:Name="Nav"
+                           Margin="0,32,0,0"
+                           PaneDisplayMode="LeftCompact"
+                           OpenPaneLength="280"
+                           CompactPaneLength="48"
+                           IsBackButtonVisible="Collapsed"
+                           IsSettingsVisible="False"
+                           IsTitleBarAutoPaddingEnabled="False"
+                           Background="Transparent"
+                           MenuItemsSource="{Binding Games}"
+                           SelectedItem="{Binding SelectedGame, Mode=TwoWay}"
+                           ItemInvoked="Nav_ItemInvoked">
+
+            <ui:NavigationView.MenuItemContainerStyle>
+                <Style TargetType="ui:NavigationViewItem">
+                    <Setter Property="Content" Value="{Binding Name}" />
+                    <EventSetter Event="Loaded" Handler="GameNavItem_Loaded" />
+                </Style>
+            </ui:NavigationView.MenuItemContainerStyle>
+
+            <!-- Bottom of the pane: action items (Add custom game, Refresh).
+                 SelectsOnInvoked=False keeps the selection bar on the active game
+                 instead of jumping to the action that was just clicked. -->
+            <ui:NavigationView.FooterMenuItems>
+                <ui:NavigationViewItem x:Name="AddCustomNav"
+                                       SelectsOnInvoked="False"
+                                       Content="{Binding [AddCustomGameTooltip], Source={x:Static s:Loc.Instance}}"
+                                       ToolTip="{Binding [AddCustomGameTooltip], Source={x:Static s:Loc.Instance}}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:FontIcon Glyph="&#xE710;" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem x:Name="RefreshNav"
+                                       SelectsOnInvoked="False"
+                                       Content="{Binding [RefreshTooltip], Source={x:Static s:Loc.Instance}}"
+                                       ToolTip="{Binding [RefreshTooltip], Source={x:Static s:Loc.Instance}}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:FontIcon Glyph="&#xE72C;" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+            </ui:NavigationView.FooterMenuItems>
+
+            <!-- Content -->
+            <Grid Margin="32,8,32,24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Top: game logo + name -->
+                <Grid Grid.Row="0" Margin="0,0,0,12">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                        <Image Source="{Binding SelectedGame.LogoUrl, IsAsync=True}"
+                               MaxHeight="120" Stretch="Uniform"
+                               HorizontalAlignment="Left"
+                               Visibility="{Binding SelectedGame.LogoUrl, Converter={StaticResource NullToVis}}" />
+                        <TextBlock Text="{Binding SelectedGame.Name}"
+                                   Foreground="White" FontSize="32" FontWeight="SemiBold"
+                                   Visibility="{Binding SelectedGame.LogoUrl, Converter={StaticResource NullToVis}, ConverterParameter=Inverse}" />
+                    </StackPanel>
+                </Grid>
+
+                <!-- Middle: banner carousel + news -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="380" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Banner carousel (only for HYP-API games; hidden for custom games) -->
+                    <Border Grid.Column="0" CornerRadius="14" ClipToBounds="True"
+                            Background="#33000000" Margin="0,0,16,0">
+                        <Grid>
+                            <Button Background="Transparent" BorderThickness="0"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    Cursor="Hand"
+                                    Padding="0"
+                                    Click="Banner_Click"
+                                    Tag="{Binding SelectedGame.CurrentBanner.Image.Link}">
+                                <Image Source="{Binding SelectedGame.CurrentBanner.Image.Url, IsAsync=True}"
+                                       Stretch="UniformToFill"
+                                       RenderOptions.BitmapScalingMode="HighQuality" />
+                            </Button>
+
+                            <Button HorizontalAlignment="Left" VerticalAlignment="Center"
+                                    Width="44" Height="44" Margin="8,0"
+                                    Background="#80000000" BorderThickness="0"
+                                    Click="PrevBanner_Click">
+                                <ui:FontIcon Glyph="&#xE76B;" Foreground="White" FontSize="14" />
+                            </Button>
+                            <Button HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    Width="44" Height="44" Margin="8,0"
+                                    Background="#80000000" BorderThickness="0"
+                                    Click="NextBanner_Click">
+                                <ui:FontIcon Glyph="&#xE76C;" Foreground="White" FontSize="14" />
+                            </Button>
+
+                            <ItemsControl ItemsSource="{Binding SelectedGame.Banners}"
+                                          HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                                          Margin="0,0,0,12">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Ellipse Width="8" Height="8" Margin="4,0" Fill="#A0FFFFFF" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Grid Background="#80000000"
+                                  Visibility="{Binding SelectedGame.IsLoading, Converter={StaticResource BoolToVis}}">
+                                <ui:ProgressRing IsActive="True" Width="40" Height="40"
+                                                 HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <!-- Posts panel — collapses for custom games (no API content) -->
+                    <Border Grid.Column="1" CornerRadius="14" Background="#A01A1A1F" Padding="14"
+                            Visibility="{Binding SelectedGame.IsCustom, Converter={StaticResource BoolToVis}, ConverterParameter=Inverse}">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top"
+                                       Text="{Binding [News], Source={x:Static s:Loc.Instance}}"
+                                       Foreground="White"
+                                       FontSize="14" FontWeight="SemiBold"
+                                       Margin="2,0,0,8" />
+                            <ListBox ItemsSource="{Binding SelectedGame.Posts}"
+                                     Background="Transparent" BorderThickness="0"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Padding" Value="6,6" />
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="BorderThickness" Value="0" />
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type m:HypPost}">
+                                        <Button Background="Transparent" BorderThickness="0"
+                                                HorizontalContentAlignment="Stretch"
+                                                Padding="2,4"
+                                                Click="Post_Click"
+                                                Tag="{Binding Link}">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Border Background="{DynamicResource SystemControlHighlightAccentBrush}"
+                                                            CornerRadius="3" Padding="6,1" Margin="0,0,8,0">
+                                                        <TextBlock Text="{Binding Type}" Foreground="White" FontSize="10" />
+                                                    </Border>
+                                                    <TextBlock Text="{Binding Date}" Foreground="#A0FFFFFF" FontSize="11"
+                                                               VerticalAlignment="Center" />
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding Title}" Foreground="White"
+                                                           TextWrapping="Wrap" Margin="0,4,0,0" />
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Bottom: update banner + launch row -->
+                <StackPanel Grid.Row="2" Margin="0,12,0,0">
+                    <Border CornerRadius="10" Padding="14,10" Margin="0,0,0,8"
+                            Background="#A0B83A2E"
+                            Visibility="{Binding SelectedGame.UpdateAvailable, Converter={StaticResource BoolToVis}}">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <ui:FontIcon Glyph="&#xE7BA;" Foreground="White" FontSize="16" Margin="0,0,8,0" />
+                            <TextBlock Foreground="White" FontWeight="SemiBold" FontSize="13"
+                                       Text="{Binding [UpdateRequiredBanner], Source={x:Static s:Loc.Instance}}" />
+                            <TextBlock Foreground="White" Opacity="0.85" FontSize="12" Margin="10,0,0,0"
+                                       VerticalAlignment="Center">
+                                <Run Text="{Binding SelectedGame.InstalledVersion, Mode=OneWay}" />
+                                <Run Text=" → " />
+                                <Run Text="{Binding SelectedGame.LatestVersion, Mode=OneWay}" />
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <Border CornerRadius="10" Padding="14,10" Margin="0,0,0,8"
+                            Background="#A0B83A2E"
+                            Visibility="{Binding SelectedGame.PathHasCjk, Converter={StaticResource BoolToVis}}">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <ui:FontIcon Glyph="&#xE783;" Foreground="White" FontSize="16" Margin="0,0,8,0" />
+                            <TextBlock Foreground="White" FontWeight="SemiBold" FontSize="13"
+                                       Text="{Binding [CjkPathBanner], Source={x:Static s:Loc.Instance}}"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Foreground="White" Opacity="0.85" FontSize="12" Margin="10,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Text="{Binding [CjkPathHint], Source={x:Static s:Loc.Instance}}" />
+                        </StackPanel>
+                    </Border>
+
+                <Grid>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <ui:FontIcon Glyph="&#xE73E;" FontSize="14" Foreground="#A0FFFFFF" Margin="0,0,6,0"
+                                     Visibility="{Binding SelectedGame.IsInstalled, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock Text="{Binding SelectedGame.InstallStatus}"
+                                   Foreground="White" Opacity="0.85" FontSize="13" />
+                        <TextBlock Text="  ·  " Foreground="White" Opacity="0.4"
+                                   Visibility="{Binding SelectedGame.ExePath, Converter={StaticResource NullToVis}}" />
+                        <TextBlock Text="{Binding SelectedGame.ExePath}"
+                                   Foreground="White" Opacity="0.5" FontSize="11"
+                                   MaxWidth="640" TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Click="Browse_Click"
+                                Content="{Binding [LocateButton], Source={x:Static s:Loc.Instance}}"
+                                Height="44" MinWidth="110" Margin="0,0,8,0"
+                                Visibility="{Binding SelectedGame.IsCustom, Converter={StaticResource BoolToVis}, ConverterParameter=Inverse}" />
+                        <Button Click="Settings_Click"
+                                Height="44" Width="44" Margin="0,0,8,0"
+                                ToolTip="{Binding [GameSettingsTooltip], Source={x:Static s:Loc.Instance}}">
+                            <ui:FontIcon Glyph="&#xE713;" FontSize="16" />
+                        </Button>
+                        <Button Click="GlobalSettings_Click"
+                                Height="44" Width="44" Margin="0,0,8,0"
+                                ToolTip="{Binding [GlobalSettingsTooltip], Source={x:Static s:Loc.Instance}}">
+                            <ui:FontIcon Glyph="&#xE774;" FontSize="16" />
+                        </Button>
+                        <Button Click="Launch_Click"
+                                Style="{DynamicResource AccentButtonStyle}"
+                                Height="44" MinWidth="200"
+                                FontSize="16" FontWeight="SemiBold"
+                                Content="{Binding SelectedGame.LaunchButtonText}" />
+                    </StackPanel>
+                </Grid>
+                </StackPanel>
+            </Grid>
+        </ui:NavigationView>
+
+        <!-- Top-level loading overlay -->
+        <Grid Background="#C0000000"
+              Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ui:ProgressRing IsActive="True" Width="56" Height="56" />
+                <TextBlock Text="{Binding StatusMessage}"
+                           Foreground="White" Margin="0,16,0,0"
+                           HorizontalAlignment="Center" FontSize="14" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,97 @@
+<ui:ContentDialog x:Class="HoyoVERSE.Views.GameSettingsDialog"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:ui="http://schemas.modernwpf.com/2019"
+                  xmlns:m="clr-namespace:HoyoVERSE.Models"
+                  xmlns:s="clr-namespace:HoyoVERSE.Services"
+                  Title="{Binding [GameSettingsTitle], Source={x:Static s:Loc.Instance}}"
+                  PrimaryButtonText="{Binding [Save], Source={x:Static s:Loc.Instance}}"
+                  CloseButtonText="{Binding [Cancel], Source={x:Static s:Loc.Instance}}"
+                  DefaultButton="Primary"
+                  MaxWidth="560">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="540">
+        <StackPanel Margin="0,4,0,0">
+
+            <!-- Custom-game name (only shown for custom games) -->
+            <StackPanel x:Name="NameSection" Margin="0,0,0,12">
+                <TextBlock Text="{Binding [DisplayName], Source={x:Static s:Loc.Instance}}"
+                           Margin="0,0,0,4" />
+                <TextBox x:Name="NameBox" />
+            </StackPanel>
+
+            <!-- Executable + Unity status -->
+            <TextBlock Text="{Binding [ExecutableLabel], Source={x:Static s:Loc.Instance}}"
+                       Margin="0,0,0,4" />
+            <Grid Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="ExeBox" IsReadOnly="True" />
+                <Button Grid.Column="1"
+                        Content="{Binding [BrowseButton], Source={x:Static s:Loc.Instance}}"
+                        Margin="6,0,0,0"
+                        x:Name="BrowseBtn" Click="Browse_Click" />
+            </Grid>
+            <TextBlock x:Name="UnityHint" FontSize="11" Foreground="#A0FFFFFF" Margin="0,0,0,12" />
+
+            <!-- Graphics API -->
+            <TextBlock Text="{Binding [GraphicsApi], Source={x:Static s:Loc.Instance}}"
+                       Margin="0,0,0,4" />
+            <ComboBox x:Name="GraphicsApiBox" Margin="0,0,0,12" />
+
+            <!-- Window mode -->
+            <TextBlock Text="{Binding [WindowMode], Source={x:Static s:Loc.Instance}}"
+                       Margin="0,0,0,4" />
+            <ComboBox x:Name="WindowModeBox" Margin="0,0,0,12" />
+
+            <!-- Resolution -->
+            <TextBlock Text="{Binding [ResolutionLabel], Source={x:Static s:Loc.Instance}}"
+                       Margin="0,0,0,4" />
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <ui:NumberBox x:Name="WidthBox" Minimum="0" Maximum="7680"
+                              SpinButtonPlacementMode="Inline" SmallChange="10" />
+                <TextBlock Grid.Column="1" Text="×" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <ui:NumberBox Grid.Column="2" x:Name="HeightBox" Minimum="0" Maximum="4320"
+                              SpinButtonPlacementMode="Inline" SmallChange="10" />
+            </Grid>
+
+            <!-- VSync -->
+            <TextBlock Text="{Binding [VSync], Source={x:Static s:Loc.Instance}}"
+                       Margin="0,0,0,4" />
+            <ComboBox x:Name="VsyncBox" Margin="0,0,0,12" />
+
+            <!-- FPS unlock (Star Rail only) -->
+            <StackPanel x:Name="FpsSection" Margin="0,0,0,12">
+                <TextBlock Text="{Binding [TargetFpsLabel], Source={x:Static s:Loc.Instance}}"
+                           Margin="0,0,0,4" />
+                <ui:NumberBox x:Name="FpsBox" Minimum="0" Maximum="120"
+                              SpinButtonPlacementMode="Inline" SmallChange="5" />
+                <TextBlock FontSize="11" Foreground="#A0FFFFFF" Margin="0,4,0,0"
+                           Text="{Binding [StarRailFpsHint], Source={x:Static s:Loc.Instance}}" />
+            </StackPanel>
+
+            <!-- Custom args -->
+            <TextBlock Text="{Binding [CustomArgsLabel], Source={x:Static s:Loc.Instance}}"
+                       Margin="0,0,0,4" />
+            <TextBox x:Name="CustomArgsBox" />
+            <TextBlock FontSize="11" Foreground="#A0FFFFFF" Margin="0,4,0,12"
+                       Text="{Binding [CustomArgsHint], Source={x:Static s:Loc.Instance}}" />
+
+            <!-- Warp / Wish history (gacha games only) -->
+            <Button x:Name="WarpHistoryBtn" Click="WarpHistory_Click"
+                    Content="{Binding [WarpHistoryButton], Source={x:Static s:Loc.Instance}}"
+                    Margin="0,4,0,0" />
+
+            <!-- Remove (custom games only) -->
+            <Button x:Name="RemoveBtn" Click="Remove_Click"
+                    Content="{Binding [RemoveButton], Source={x:Static s:Loc.Instance}}"
+                    Margin="0,4,0,0" Foreground="#FFE34D5C" />
+        </StackPanel>
+    </ScrollViewer>
+</ui:ContentDialog>

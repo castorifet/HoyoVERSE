@@ -1,0 +1,52 @@
+<ui:ContentDialog x:Class="HoyoVERSE.Views.UpdateDialog"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:ui="http://schemas.modernwpf.com/2019"
+                  xmlns:s="clr-namespace:HoyoVERSE.Services"
+                  Title="Download / Update"
+                  CloseButtonText="{Binding [Close], Source={x:Static s:Loc.Instance}}"
+                  DefaultButton="Primary"
+                  MaxWidth="640">
+    <StackPanel MinWidth="520">
+        <TextBlock x:Name="HeaderText"
+                   FontSize="14" Foreground="White" Margin="0,0,0,8"
+                   TextWrapping="Wrap" />
+
+        <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="DestBox" />
+            <Button Grid.Column="1" Content="Browse..." Margin="6,0,0,0"
+                    x:Name="BrowseBtn" Click="Browse_Click" />
+        </Grid>
+
+        <ItemsControl x:Name="PartsList" Margin="0,4,0,8">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" Foreground="#A0FFFFFF" FontSize="11"
+                               TextTrimming="CharacterEllipsis" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <ProgressBar x:Name="Bar" Height="6" Maximum="1" Margin="0,4,0,4"
+                     IsIndeterminate="False" />
+        <TextBlock x:Name="StatusText" Foreground="White" FontSize="12" />
+
+        <StackPanel Orientation="Horizontal" Margin="0,12,0,0" HorizontalAlignment="Right">
+            <Button x:Name="LocateBtn"
+                    Content="{Binding [LocateExistingButton], Source={x:Static s:Loc.Instance}}"
+                    Click="Locate_Click"
+                    Margin="0,0,8,0" />
+            <Button x:Name="StartBtn" Content="Start download" Click="Start_Click"
+                    Style="{DynamicResource AccentButtonStyle}" />
+            <Button x:Name="CancelBtn" Content="{Binding [Cancel], Source={x:Static s:Loc.Instance}}" Click="Cancel_Click"
+                    Margin="8,0,0,0" Visibility="Collapsed" />
+        </StackPanel>
+
+        <TextBlock Margin="0,12,0,0" FontSize="11" Foreground="#A0FFFFFF" TextWrapping="Wrap"
+                   Text="Downloads the official package archive(s). Binary diff patching (hpatchz) is not bundled — for an existing install, replace the game folder with the extracted archive contents, or run the installer if the archive contains one." />
+    </StackPanel>
+</ui:ContentDialog>

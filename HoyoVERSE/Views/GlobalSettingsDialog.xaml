@@ -1,0 +1,43 @@
+<ui:ContentDialog x:Class="HoyoVERSE.Views.GlobalSettingsDialog"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:ui="http://schemas.modernwpf.com/2019"
+                  xmlns:s="clr-namespace:HoyoVERSE.Services"
+                  Title="{Binding [GlobalSettingsTitle], Source={x:Static s:Loc.Instance}}"
+                  CloseButtonText="{Binding [Close], Source={x:Static s:Loc.Instance}}"
+                  DefaultButton="Close"
+                  MaxWidth="480">
+    <StackPanel Margin="0,4,0,0" MinWidth="360">
+
+        <TextBlock Text="{Binding [LanguageLabel], Source={x:Static s:Loc.Instance}}"
+                   Margin="0,0,0,4" />
+        <ComboBox x:Name="LangBox"
+                  Margin="0,0,0,16"
+                  SelectedValuePath="Tag"
+                  SelectionChanged="LangBox_SelectionChanged">
+            <ComboBoxItem Tag="en-us" Content="English" />
+            <ComboBoxItem Tag="ja-jp" Content="日本語" />
+            <ComboBoxItem Tag="zh-cn" Content="简体中文" />
+            <ComboBoxItem Tag="zh-tw" Content="繁體中文" />
+        </ComboBox>
+
+        <TextBlock Text="{Binding [RegionLabel], Source={x:Static s:Loc.Instance}}"
+                   Margin="0,0,0,4" />
+        <Border CornerRadius="14"
+                Background="#33000000"
+                Padding="2"
+                BorderThickness="1" BorderBrush="#30FFFFFF"
+                HorizontalAlignment="Left">
+            <StackPanel Orientation="Horizontal">
+                <ToggleButton x:Name="RegionGlobalBtn"
+                              Content="{Binding [RegionGlobal], Source={x:Static s:Loc.Instance}}"
+                              Style="{StaticResource RegionToggleStyle}"
+                              Click="RegionGlobal_Click" />
+                <ToggleButton x:Name="RegionChinaBtn"
+                              Content="{Binding [RegionChina], Source={x:Static s:Loc.Instance}}"
+                              Style="{StaticResource RegionToggleStyle}"
+                              Click="RegionChina_Click" />
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</ui:ContentDialog>
