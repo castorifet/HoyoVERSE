@@ -2,6 +2,16 @@
 
 A miHoYo games launcher
 
+## Functions
+* Launch/Install/Update miHoYo Games
+* Read game banner & warp history
+* Multi-Language supported
+* Switch seamlessly between OS and CN servers
+* Install game to custom paths
+* Add other games / executables
+* Utilities for games made using Unity Engine
+* FPS Modifier (Star Rail only)
+
 ## How to build?
 
 Download & Install Visual Studio
@@ -53,5 +63,6 @@ Q: Game is not launching
 A: Check your directory permission, and check whether the game did really exist.
 
 
-* I have added some comments inside the source since it may be too complicated for noobs to understand the code.
+I have added some comments inside the source since it may be too complicated for noobs to understand the codes.
+
 ### Yes, It's u, @XingChenBanYue (
