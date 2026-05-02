@@ -1,7 +1,9 @@
 # HoyoVERSE
 [English](README.md) | [正體中文/繁體中文](readme_TW.md)
 
-[![Platform](https://img.shields.io/badge/Platform-Windows-pink)]
+[![Platform](https://img.shields.io/badge/Platform-Windows-pink)](#)
+
+
 
 A miHoYo games launcher
 
