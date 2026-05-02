@@ -1,5 +1,5 @@
 # HoyoVERSE
-[English](README.md) | [正體中文/繁體中文](readme-TW.md)
+[English](README.md) | [正體中文/繁體中文](readme_TW.md)
 A miHoYo games launcher
 
 ## Functions
